@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.agents/
+.tools/
+gh_*_windows_amd64.zip
+*.log
+data/
+uploads/
+docx_render_check/
