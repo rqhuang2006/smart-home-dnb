@@ -26,10 +26,18 @@
 
 ## 当前完成内容
 
+- 已创建公开 GitHub 仓库：<https://github.com/rqhuang2006/smart-home-dnb>
 - 完成 C 负责人接口文档。
 - 搭建 FastAPI mock 后端骨架。
-- 实现 7 个 mock 接口，暂不依赖真实硬件。
+- 实现 10 个 mock 接口，暂不依赖真实硬件。
 - 已用本地 HTTP 请求验证接口可用。
+
+## 组员快速入口
+
+- 新成员加入与分支协作：[docs/TEAM_ONBOARDING.md](docs/TEAM_ONBOARDING.md)
+- 阶段联调清单：[docs/INTEGRATION_CHECKLIST.md](docs/INTEGRATION_CHECKLIST.md)
+- 后端启动与测试：[backend/README.md](backend/README.md)
+- C 负责人接口文档：[智能家居后端API接口文档_C负责人.md](智能家居后端API接口文档_C负责人.md)
 
 ## 仓库结构
 
@@ -83,10 +91,13 @@ http://127.0.0.1:8000/docs
 | GET | `/api/v1/health` | 后端健康检查 |
 | GET | `/api/v1/devices/status` | 查询当前设备状态 |
 | GET | `/api/v1/sensors/history` | 查询传感器历史数据 |
+| POST | `/api/v1/iot/telemetry` | mock 设备数据上报 |
 | POST | `/api/v1/face/verify` | mock 人脸比对与门禁判断 |
 | POST | `/api/v1/vision/detect` | mock YOLO 目标检测 |
 | POST | `/api/v1/devices/light/control` | mock 灯光远程控制 |
 | POST | `/api/v1/devices/fan/control` | mock 风扇远程控制 |
+| POST | `/api/v1/devices/door/control` | mock 门禁远程控制 |
+| GET | `/api/v1/dashboard/summary` | GUI 首页聚合数据 |
 
 ## 联调说明
 

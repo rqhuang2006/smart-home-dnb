@@ -47,10 +47,13 @@ http://<orange-pi-ip>:8000/docs
 | GET | `/api/v1/health` | 后端健康检查 |
 | GET | `/api/v1/devices/status` | 查询当前温度、灯光、风扇、门窗状态 |
 | GET | `/api/v1/sensors/history` | 查询传感器历史数据 |
+| POST | `/api/v1/iot/telemetry` | mock 设备数据上报 |
 | POST | `/api/v1/face/verify` | mock 人脸比对和门禁判断 |
 | POST | `/api/v1/vision/detect` | mock YOLO 目标检测 |
 | POST | `/api/v1/devices/light/control` | mock 灯光远程控制 |
 | POST | `/api/v1/devices/fan/control` | mock 风扇远程控制 |
+| POST | `/api/v1/devices/door/control` | mock 门禁远程控制 |
+| GET | `/api/v1/dashboard/summary` | GUI 首页聚合数据 |
 
 ## 3. 快速测试示例
 
@@ -90,6 +93,28 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/light/control \
 curl -X POST http://127.0.0.1:8000/api/v1/devices/fan/control \
   -H "Content-Type: application/json" \
   -d "{\"on\":true,\"source\":\"gui\",\"temperature\":30.2}"
+```
+
+上报设备数据：
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/iot/telemetry \
+  -H "Content-Type: application/json" \
+  -d "{\"temperature\":28.6,\"light_brightness\":60,\"door_open\":false,\"window_open\":true,\"fan_on\":false}"
+```
+
+控制门禁：
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/devices/door/control \
+  -H "Content-Type: application/json" \
+  -d "{\"action\":\"open\",\"reason\":\"manual demo\",\"duration_seconds\":3}"
+```
+
+GUI 首页聚合数据：
+
+```bash
+curl http://127.0.0.1:8000/api/v1/dashboard/summary
 ```
 
 ## 4. 后续替换真实模块的位置

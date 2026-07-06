@@ -46,6 +46,20 @@ class FanControlRequest(BaseModel):
     temperature: float | None = None
 
 
+class TelemetryRequest(BaseModel):
+    temperature: float = 29.5
+    light_brightness: int = Field(default=80, ge=0, le=100)
+    door_open: bool = False
+    window_open: bool = True
+    fan_on: bool = False
+
+
+class DoorControlRequest(BaseModel):
+    action: Literal["open", "close"] = "open"
+    reason: str = "manual"
+    duration_seconds: int | None = Field(default=3, ge=0, le=30)
+
+
 device_status = {
     "temperature": 29.5,
     "fan_on": True,
@@ -83,6 +97,9 @@ authorized_people = {
     "张三": {"person_id": 1, "name": "张三", "confidence": 0.92},
     "李四": {"person_id": 2, "name": "李四", "confidence": 0.89},
 }
+
+latest_face_access: dict[str, Any] = {}
+latest_detection: dict[str, Any] = {}
 
 
 @app.get(f"{API_PREFIX}/health")
@@ -123,6 +140,33 @@ def get_sensor_history(
     return ok({"start": start, "end": end, "type": type, "records": records})
 
 
+@app.post(f"{API_PREFIX}/iot/telemetry")
+def create_telemetry(payload: TelemetryRequest) -> dict[str, Any]:
+    record_id = sensor_history[-1]["record_id"] + 1 if sensor_history else 1
+    record = {
+        "record_id": record_id,
+        "temperature": payload.temperature,
+        "light_brightness": payload.light_brightness,
+        "door_open": payload.door_open,
+        "window_open": payload.window_open,
+        "fan_on": payload.fan_on,
+        "created_at": now_iso(),
+    }
+    sensor_history.append(record)
+    device_status.update(
+        {
+            "temperature": payload.temperature,
+            "light_brightness": payload.light_brightness,
+            "light_on": payload.light_brightness > 0,
+            "door_open": payload.door_open,
+            "window_open": payload.window_open,
+            "fan_on": payload.fan_on,
+            "updated_at": record["created_at"],
+        }
+    )
+    return ok({"record_id": record_id, "saved": True, "record": record})
+
+
 @app.post(f"{API_PREFIX}/face/verify")
 def verify_face(payload: FaceVerifyRequest) -> dict[str, Any]:
     person = authorized_people.get(payload.name or "")
@@ -150,6 +194,8 @@ def verify_face(payload: FaceVerifyRequest) -> dict[str, Any]:
 
     device_status["door_open"] = result["door_allowed"]
     device_status["updated_at"] = now_iso()
+    latest_face_access.clear()
+    latest_face_access.update({**result, "created_at": device_status["updated_at"]})
     return ok(result)
 
 
@@ -163,20 +209,21 @@ def detect_objects(payload: DetectRequest) -> dict[str, Any]:
     device_status["light_brightness"] = max(device_status["light_brightness"], 80)
     device_status["updated_at"] = now_iso()
 
-    return ok(
-        {
-            "record_id": 101,
-            "image_id": payload.image_id,
-            "image_path": payload.image_path,
-            "objects": objects,
-            "trigger_action": {
-                "type": "light_on",
-                "executed": True,
-                "reason": "detected light_bulb",
-            },
-            "created_at": now_iso(),
-        }
-    )
+    detection_result = {
+        "record_id": 101,
+        "image_id": payload.image_id,
+        "image_path": payload.image_path,
+        "objects": objects,
+        "trigger_action": {
+            "type": "light_on",
+            "executed": True,
+            "reason": "detected light_bulb",
+        },
+        "created_at": now_iso(),
+    }
+    latest_detection.clear()
+    latest_detection.update(detection_result)
+    return ok(detection_result)
 
 
 @app.post(f"{API_PREFIX}/devices/light/control")
@@ -204,5 +251,30 @@ def control_fan(payload: FanControlRequest) -> dict[str, Any]:
             "fan_on": device_status["fan_on"],
             "temperature": device_status["temperature"],
             "source": payload.source,
+        }
+    )
+
+
+@app.post(f"{API_PREFIX}/devices/door/control")
+def control_door(payload: DoorControlRequest) -> dict[str, Any]:
+    device_status["door_open"] = payload.action == "open"
+    device_status["updated_at"] = now_iso()
+    return ok(
+        {
+            "door_open": device_status["door_open"],
+            "action": payload.action,
+            "reason": payload.reason,
+            "duration_seconds": payload.duration_seconds,
+        }
+    )
+
+
+@app.get(f"{API_PREFIX}/dashboard/summary")
+def dashboard_summary() -> dict[str, Any]:
+    return ok(
+        {
+            "device_status": device_status,
+            "latest_face_access": latest_face_access or None,
+            "latest_detection": latest_detection or None,
         }
     )
