@@ -1,0 +1,75 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>人脸验证</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>智能家居人脸门禁测试</h1>
+    <nav>
+      <a href="/face/register">人员录入</a>
+      <a href="/face/verify">人脸验证</a>
+      <a href="/face/logs">识别记录</a>
+      <a href="/docs">API Docs</a>
+    </nav>
+  </header>
+  <main>
+    <section class="panel">
+      <h2>上传待验证图片</h2>
+      <form id="verify-form">
+        <label for="face_image">人脸图片</label>
+        <input id="face_image" name="face_image" type="file" accept="image/*" required>
+        <button type="submit">开始验证</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>识别结果</h2>
+      <div id="quick-result">等待上传...</div>
+      <button id="open-door-button" class="secondary" hidden>调用门禁开门</button>
+      <pre id="verify-result" class="result">等待提交...</pre>
+    </section>
+  </main>
+  <script src="/static/js/main.js"></script>
+  <script>
+    let lastVerifyData = null;
+    document.getElementById("verify-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.target.querySelector("button");
+      const openButton = document.getElementById("open-door-button");
+      button.disabled = true;
+      openButton.hidden = true;
+      try {
+        const response = await postForm("/api/v1/face/verify", event.target);
+        lastVerifyData = response.data;
+        document.getElementById("quick-result").innerHTML = `
+          门禁判断：${accessText(lastVerifyData.door_allowed)}
+          <br>匹配：${lastVerifyData.matched}
+          <br>姓名：${lastVerifyData.name || "-"}
+          <br>confidence：${lastVerifyData.confidence}
+          <br>reason：${lastVerifyData.reason}
+        `;
+        openButton.hidden = !lastVerifyData.door_allowed;
+        showJson("verify-result", response);
+      } catch (error) {
+        document.getElementById("quick-result").textContent = "验证失败";
+        showJson("verify-result", { code: 5000, message: error.message, data: null });
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("open-door-button").addEventListener("click", async () => {
+      const response = await postJson("/api/v1/devices/door/control", {
+        action: "open",
+        reason: "face authorized",
+        duration_seconds: 3
+      });
+      showJson("verify-result", { verify: lastVerifyData, door_control: response });
+    });
+  </script>
+</body>
+</html>
