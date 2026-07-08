@@ -1,0 +1,32 @@
+{
+  "time": "2026-07-08 18:45:55",
+  "source": "upload",
+  "raw_image": "upload_20260708_184555_690.webp",
+  "result_image": "result_20260708_184555_736.jpg",
+  "json_file": "result_20260708_184555_736.json",
+  "txt_file": "result_20260708_184555_736.txt",
+  "image_size": {
+    "width": 373,
+    "height": 246
+  },
+  "confidence_threshold": 0.35,
+  "objects": [
+    {
+      "class_id": 2,
+      "class_name": "light_bulb",
+      "confidence": 0.4454,
+      "box_xyxy": {
+        "x1": 224.3,
+        "y1": 19.81,
+        "x2": 370.23,
+        "y2": 195.16
+      },
+      "box_yolo_normalized": {
+        "cx": 0.796965,
+        "cy": 0.436933,
+        "w": 0.391232,
+        "h": 0.712819
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+使用步骤：
+
+1. 解压 smart_home_yolo_pack_对接版_保留原best.zip
+2. 进入 smart_home_yolo_pack 文件夹
+3. 安装依赖并启动：
+
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   python -m pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --timeout 120
+   python app.py
+
+4. 浏览器打开：http://127.0.0.1:5000
+
+5. 测试小组接口：
+
+   curl.exe -X POST http://127.0.0.1:5000/api/v1/vision/detect -F "source=upload" -F "image=@C:\Users\34668\Desktop\test.jpg"
+
+说明：
+- weights/best.pt 是你原有模型。
+- weights/best_drone_fire.pt 是同一个原模型的备份。
+- 等三类模型训练完成后，把新的 best.pt 覆盖到 weights/best.pt。

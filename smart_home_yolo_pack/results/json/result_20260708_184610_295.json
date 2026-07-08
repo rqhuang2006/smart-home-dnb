@@ -1,0 +1,14 @@
+{
+  "time": "2026-07-08 18:46:10",
+  "source": "upload",
+  "raw_image": "upload_20260708_184610_263.webp",
+  "result_image": "result_20260708_184610_295.jpg",
+  "json_file": "result_20260708_184610_295.json",
+  "txt_file": "result_20260708_184610_295.txt",
+  "image_size": {
+    "width": 435,
+    "height": 283
+  },
+  "confidence_threshold": 0.35,
+  "objects": []
+}

@@ -1,0 +1,22 @@
+# 可选：Linux systemd 自启动示例
+# 使用方法：
+# 1. 修改 WorkingDirectory 和 ExecStart 为你的实际路径
+# 2. sudo cp smart_home_yolo.service.example /etc/systemd/system/smart_home_yolo.service
+# 3. sudo systemctl daemon-reload
+# 4. sudo systemctl enable smart_home_yolo
+# 5. sudo systemctl start smart_home_yolo
+
+[Unit]
+Description=Smart Home YOLO Detection Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/orangepi/smart_home_yolo_pack
+ExecStart=/home/orangepi/smart_home_yolo_pack/yolo_env/bin/python /home/orangepi/smart_home_yolo_pack/app.py
+Restart=always
+RestartSec=5
+User=orangepi
+
+[Install]
+WantedBy=multi-user.target
