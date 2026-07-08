@@ -567,9 +567,12 @@
 
       if (latestDetection) {
         const objects = pick(latestDetection, ["objects"], []);
+        const labels = asArray(objects)
+          .map((object) => (typeof object === "string" ? object : pick(object, ["label", "class_name", "name"], "")))
+          .filter(Boolean);
         doorsWindows.push({
           name: "视觉识别",
-          status: Array.isArray(objects) ? objects.join(", ") : "已记录",
+          status: labels.length ? labels.join(", ") : "已记录",
           type: "vision"
         });
       }
