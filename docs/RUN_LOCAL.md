@@ -72,6 +72,24 @@ web/nexus-iot-analytics.html
 http://127.0.0.1:8000/api/v1
 ```
 
+如果是线下多台电脑联调，推荐让一台电脑或香橙派作为“主机”运行后端和静态页面。其他电脑访问主机 IP，例如：
+
+```text
+http://<主机IP>:8080/web/smart-home-dnb-dashboard.html
+```
+
+GUI 会自动调用：
+
+```text
+http://<主机IP>:8000/api/v1
+```
+
+如果页面和后端不在同一台机器，可以用 `api` 参数手动指定后端地址：
+
+```text
+http://<页面主机IP>:8080/web/smart-home-dnb-dashboard.html?api=http://<后端主机IP>:8000/api/v1
+```
+
 如果浏览器显示离线/mock 数据，先检查：
 
 - C 后端是否启动。

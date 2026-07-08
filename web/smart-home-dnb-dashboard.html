@@ -330,7 +330,10 @@
   <script>
     /*
       Smart Home DNB backend API, based on 智能家居后端API接口文档_黄睿琦.docx.
-      Default backend: http://127.0.0.1:8000/api/v1
+      Default backend:
+      - file:// preview: http://127.0.0.1:8000/api/v1
+      - LAN preview: http://<page-host>:8000/api/v1
+      - override: ?api=http://<backend-ip>:8000/api/v1
 
       Used endpoints:
       - GET  /health
@@ -342,7 +345,12 @@
       - POST /devices/fan/control
       - POST /devices/door/control
     */
-    const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+    const apiOverride = new URLSearchParams(window.location.search).get("api");
+    const pageHost = window.location.hostname;
+    const inferredApiHost = pageHost && pageHost !== "localhost" && pageHost !== "127.0.0.1"
+      ? pageHost
+      : "127.0.0.1";
+    const API_BASE_URL = (apiOverride || `http://${inferredApiHost}:8000/api/v1`).replace(/\/$/, "");
     const REQUEST_TIMEOUT = 3200;
     const chartTextColor = "#94a3b8";
     const gridColor = "rgba(148, 163, 184, .14)";
