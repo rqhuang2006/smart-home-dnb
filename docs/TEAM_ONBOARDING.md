@@ -1,10 +1,10 @@
 # Team Onboarding
 
-这份文档给刚加入 GitHub 仓库的组员使用，目标是让大家能快速找到自己的任务、启动后端、理解协作方式。
+这份文档给刚加入仓库的组员使用。
 
-## 1. 加入仓库后先做什么
+## 1. 加入后先做什么
 
-1. 接受 GitHub 邀请。
+1. 接受 GitHub 仓库邀请。
 2. 打开仓库：<https://github.com/rqhuang2006/smart-home-dnb>
 3. 克隆项目：
 
@@ -13,12 +13,10 @@ git clone https://github.com/rqhuang2006/smart-home-dnb.git
 cd smart-home-dnb
 ```
 
-4. 阅读根目录 `README.md` 和 `智能家居后端API接口文档_C负责人.md`。
-5. 如果要联调后端，进入 `backend/` 按 `backend/README.md` 启动。
+4. 阅读 `README.md`、`docs/RUN_LOCAL.md` 和接口文档。
+5. 不要直接在 `main` 上改代码，先建自己的功能分支。
 
 ## 2. 分支建议
-
-不要直接在 `main` 上改。建议按任务建分支：
 
 ```bash
 git checkout -b feature/gui
@@ -28,7 +26,7 @@ git checkout -b feature/database-iot
 git checkout -b feature/backend-api
 ```
 
-改完后提交并推送：
+提交并推送：
 
 ```bash
 git add .
@@ -38,36 +36,19 @@ git push -u origin <branch-name>
 
 然后在 GitHub 上开 Pull Request。
 
-## 3. 各角色入口
+## 3. 角色入口
 
 | 角色 | 先看什么 | 先做什么 |
 |---|---|---|
-| A 人脸识别 | `/api/v1/face/verify` 返回格式 | 用 2 真 1 假图片跑通 mock/真实识别结果 |
-| B YOLO | `/api/v1/vision/detect` 返回格式 | 输出 label、confidence、bbox，与后端 JSON 对齐 |
-| C 后端 API | `backend/app/main.py` | 保持接口稳定，补充真实数据库/算法/硬件适配 |
-| D 数据库设备数据 | `/api/v1/iot/telemetry` 和 `/api/v1/sensors/history` | 设计表结构，模拟温度、灯光、门窗数据 |
-| E GUI 集成 | `/api/v1/devices/status` 和 `/api/v1/dashboard/summary` | 做首页状态、历史查询、远程控制按钮 |
+| A 人脸识别 | `Facial Recognition/README.md` | 录入 2 真 1 假样例，确认 `/api/v1/face/verify` 返回格式 |
+| B YOLO | C 接口文档里的 `/api/v1/vision/detect` | 对齐 `label/confidence/bbox`，不要提交运行结果和大模型到 Git |
+| C 后端 API | `backend/app/main.py` | 保持统一接口稳定，负责聚合 A/B/D/E |
+| D 数据库设备数据 | `database/schema_iot_smart_system.sql` 和 `iot_sim.py` | 用模拟数据调用 `/api/v1/iot/telemetry` |
+| E GUI 集成 | `/api/v1/dashboard/summary` | 做首页状态、历史查询、远程控制按钮 |
 
-## 4. 邀请组员
+## 4. 提交前自查
 
-如果已经知道组员 GitHub 用户名，可以由仓库管理员执行：
-
-```bash
-gh api -X PUT repos/rqhuang2006/smart-home-dnb/collaborators/<github-username> -f permission=push
-```
-
-也可以在网页操作：
-
-1. 打开仓库 Settings。
-2. 进入 Collaborators。
-3. 点击 Add people。
-4. 输入 GitHub 用户名或邮箱并发送邀请。
-
-建议给普通组员 `Write` 权限即可。
-
-## 5. 联调约定
-
-- 接口路径尽量不要随意改；必须改时同步更新接口文档。
-- mock 接口先保证 GUI 能开发，真实硬件/算法后续替换实现。
-- 每个人提交前先说明改动影响了哪些接口或页面。
-- 如果发现接口字段不够用，先在 issue 或群里说清楚字段名称、类型、用途。
+- 是否修改了接口路径或字段？如果是，同步更新文档。
+- 是否提交了 `.env`、密码、数据库运行文件、`__pycache__`、结果图片？
+- 是否能本地启动或至少说明依赖环境？
+- 是否影响其他组员端口？默认端口：C 后端 8000、人脸 8001、YOLO 5000。

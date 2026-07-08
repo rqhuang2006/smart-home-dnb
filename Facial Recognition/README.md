@@ -1,4 +1,4 @@
-﻿# Smart Home Face Access Backend
+# Smart Home Face Access Backend
 
 这是大学小学期 Design and Build 智能家居系统中的人脸识别门禁模块。
 
@@ -15,7 +15,7 @@
 开发运行地址：
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:8001
 ```
 
 API 统一前缀：
@@ -104,25 +104,25 @@ database/smarthome.db
 ### 1.4 启动后端
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8001
 ```
 
 启动成功后访问：
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:8001
 ```
 
 如果你是在香橙派或局域网机器上部署，其他设备可以访问：
 
 ```text
-http://<orange-pi-ip>:8000
+http://<orange-pi-ip>:8001
 ```
 
 API 地址就是：
 
 ```text
-http://127.0.0.1:8000/api/v1
+http://127.0.0.1:8001/api/v1
 ```
 
 ## 2. 页面怎么用
@@ -132,7 +132,7 @@ http://127.0.0.1:8000/api/v1
 ### 2.1 人员录入页面
 
 ```text
-http://127.0.0.1:8000/face/register
+http://127.0.0.1:8001/face/register
 ```
 
 可以做这些事：
@@ -147,7 +147,7 @@ http://127.0.0.1:8000/face/register
 ### 2.2 人脸验证页面
 
 ```text
-http://127.0.0.1:8000/face/verify
+http://127.0.0.1:8001/face/verify
 ```
 
 上传一张待验证的人脸图片，页面会显示：
@@ -163,7 +163,7 @@ http://127.0.0.1:8000/face/verify
 ### 2.3 识别记录页面
 
 ```text
-http://127.0.0.1:8000/face/logs
+http://127.0.0.1:8001/face/logs
 ```
 
 可以查看最近的人脸验证记录。每次调用 `/api/v1/face/verify` 都会写入一条日志，包括没有检测到人脸的情况。
@@ -185,7 +185,7 @@ test/demo/unauthorized_verify.jpg
 1. 打开人员录入页面：
 
 ```text
-http://127.0.0.1:8000/face/register
+http://127.0.0.1:8001/face/register
 ```
 
 2. 录入第一个授权人员：
@@ -209,7 +209,7 @@ face_image: test/demo/authorized_lisi_register.jpg
 4. 打开人脸验证页面：
 
 ```text
-http://127.0.0.1:8000/face/verify
+http://127.0.0.1:8001/face/verify
 ```
 
 5. 上传张三验证图：
@@ -260,7 +260,7 @@ reason=unknown or unauthorized person
 8. 查看识别记录：
 
 ```text
-http://127.0.0.1:8000/face/logs
+http://127.0.0.1:8001/face/logs
 ```
 
 确认三次识别都写入 `access_logs`。

@@ -11,6 +11,18 @@ env/
 .tools/
 gh_*_windows_amd64.zip
 *.log
+*.db
+*.sqlite
+*.sqlite3
+*.pt
+*.onnx
 data/
 uploads/
 docx_render_check/
+storage/
+Facial Recognition/database/*.db
+Facial Recognition/storage/
+smart_home_yolo_pack/uploads/
+smart_home_yolo_pack/images/
+smart_home_yolo_pack/results/
+smart_home_yolo_pack/weights/*.pt
