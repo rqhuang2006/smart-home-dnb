@@ -1,0 +1,92 @@
+[
+  {
+    "category": "fire_extinguisher",
+    "filename": "fire_extinguisher_test_04.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\fire_extinguisher_test_04.jpg",
+    "source_title": "File:14-02-21-landtag-mainz-RalfR-34.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/14-02-21-landtag-mainz-RalfR-34.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/14-02-21-landtag-mainz-RalfR-34.jpg/1280px-14-02-21-landtag-mainz-RalfR-34.jpg",
+    "width": 1280,
+    "height": 1038,
+    "bytes": 267315
+  },
+  {
+    "category": "fire_extinguisher",
+    "filename": "fire_extinguisher_test_05.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\fire_extinguisher_test_05.jpg",
+    "source_title": "File:90L AFFF Foam Fire Extinguisher HMS Albion.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/90L_AFFF_Foam_Fire_Extinguisher_HMS_Albion.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/90L_AFFF_Foam_Fire_Extinguisher_HMS_Albion.jpg/1280px-90L_AFFF_Foam_Fire_Extinguisher_HMS_Albion.jpg",
+    "width": 1280,
+    "height": 1920,
+    "bytes": 571238
+  },
+  {
+    "category": "drone",
+    "filename": "drone_test_01.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\drone_test_01.jpg",
+    "source_title": "File:2015 Dron DJI Phantom 3 Advanced.JPG",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/2015_Dron_DJI_Phantom_3_Advanced.JPG",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2015_Dron_DJI_Phantom_3_Advanced.JPG/1280px-2015_Dron_DJI_Phantom_3_Advanced.JPG",
+    "width": 1280,
+    "height": 814,
+    "bytes": 140777
+  },
+  {
+    "category": "drone",
+    "filename": "drone_test_03.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\drone_test_03.jpg",
+    "source_title": "File:Aerodyne drone 2.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Aerodyne_drone_2.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Aerodyne_drone_2.jpg/1280px-Aerodyne_drone_2.jpg",
+    "width": 1280,
+    "height": 1400,
+    "bytes": 476051
+  },
+  {
+    "category": "drone",
+    "filename": "drone_test_04.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\drone_test_04.jpg",
+    "source_title": "File:Aeryon Scout With Camera.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Aeryon_Scout_With_Camera.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Aeryon_Scout_With_Camera.jpg/1280px-Aeryon_Scout_With_Camera.jpg",
+    "width": 1280,
+    "height": 853,
+    "bytes": 65869
+  },
+  {
+    "category": "drone",
+    "filename": "drone_test_05.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\drone_test_05.jpg",
+    "source_title": "File:Airspeeder MK3 at Goodwood Festival of Speed 2019.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Airspeeder_MK3_at_Goodwood_Festival_of_Speed_2019.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Airspeeder_MK3_at_Goodwood_Festival_of_Speed_2019.jpg",
+    "width": 900,
+    "height": 600,
+    "bytes": 115766
+  },
+  {
+    "category": "fire_extinguisher",
+    "filename": "fire_extinguisher_test_01.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\fire_extinguisher_test_01.jpg",
+    "source_title": "File:Brandlusser.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Brandlusser.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Brandlusser.jpg/1280px-Brandlusser.jpg",
+    "width": 1280,
+    "height": 1707,
+    "bytes": 492633,
+    "selected_because": "detected as fire_extinguisher by current YOLO model at conf=0.35"
+  },
+  {
+    "category": "drone",
+    "filename": "drone_test_02.jpg",
+    "path": "smart_home_backend\\data\\images\\camera\\drone_test_02.jpg",
+    "source_title": "File:A drone over Ladhope Recreation Ground, Galashiels - geograph.org.uk - 4487469.jpg",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/A_drone_over_Ladhope_Recreation_Ground%2C_Galashiels_-_geograph.org.uk_-_4487469.jpg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/A_drone_over_Ladhope_Recreation_Ground%2C_Galashiels_-_geograph.org.uk_-_4487469.jpg",
+    "width": 640,
+    "height": 485,
+    "bytes": 167874,
+    "selected_because": "detected as drone by current YOLO model at conf=0.35"
+  }
+]
