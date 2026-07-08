@@ -1,6 +1,6 @@
 # Smart Home DnB
 
-智能家居 Design and Build 项目仓库。当前仓库用于小组协作，包含 C 后端 API、A 人脸门禁模块、D 设备数据模拟、接口文档和阶段联调说明。
+智能家居 Design and Build 项目仓库。当前仓库用于小组协作，包含 C 后端 API、A 人脸门禁模块、B YOLO 识别模块、D 设备数据模拟、E GUI 原型、接口文档和阶段联调说明。
 
 GitHub 仓库：
 
@@ -14,7 +14,9 @@ https://github.com/rqhuang2006/smart-home-dnb
 |---|---|---:|---|
 | C 后端 API | `backend/` | 8000 | 小组统一 mock API，GUI 优先接这里 |
 | A 人脸门禁 | `Facial Recognition/` | 8001 | 授权人员录入、人脸验证、门禁日志 |
+| B YOLO 识别 | `smart_home_yolo_pack/` | 5000 | 独立 Flask 识别服务，保留源码与配置，不提交模型权重和运行结果 |
 | D 设备数据模拟 | `iot_sim.py` | 无 | 默认向 C 后端上报模拟传感器数据 |
+| E GUI 原型 | `web/` | 无 | 静态 HTML 页面，默认调用 C 后端 `8000/api/v1` |
 | 数据库 schema | `database/schema_iot_smart_system.sql` | 无 | 只包含项目 MySQL 表结构 |
 | 协作文档 | `docs/` | 无 | 组员加入、联调清单、运行说明 |
 
@@ -40,6 +42,13 @@ http://127.0.0.1:8000/docs
 python iot_sim.py
 ```
 
+查看 GUI 原型：
+
+```text
+web/smart-home-dnb-dashboard.html
+web/nexus-iot-analytics.html
+```
+
 如果要单独演示人脸模块：
 
 ```bash
@@ -55,6 +64,20 @@ python -m uvicorn main:app --reload --host 0.0.0.0 --port 8001
 http://127.0.0.1:8001/face/register
 ```
 
+如果要单独演示 YOLO 模块：
+
+```bash
+cd smart_home_yolo_pack
+python -m pip install -r requirements.txt
+python app.py
+```
+
+查看 YOLO 页面：
+
+```text
+http://127.0.0.1:5000/
+```
+
 ## 3. C 后端已实现接口
 
 | 方法 | 路径 | 用途 |
@@ -63,8 +86,10 @@ http://127.0.0.1:8001/face/register
 | GET | `/api/v1/devices/status` | 查询当前设备状态 |
 | GET | `/api/v1/sensors/history` | 查询传感器历史数据 |
 | POST | `/api/v1/iot/telemetry` | 设备数据上报 |
+| POST | `/api/v1/images` | mock 图片记录 |
 | POST | `/api/v1/face/verify` | mock 人脸比对与门禁判断 |
 | POST | `/api/v1/vision/detect` | mock YOLO 目标检测 |
+| GET | `/api/v1/vision/records` | 查询 YOLO 识别记录 |
 | POST | `/api/v1/devices/light/control` | 灯光远程控制 |
 | POST | `/api/v1/devices/fan/control` | 风扇远程控制 |
 | POST | `/api/v1/devices/door/control` | 门禁远程控制 |
@@ -74,7 +99,7 @@ http://127.0.0.1:8001/face/register
 
 - `main` 保持可运行，组员改功能请开分支和 Pull Request。
 - GUI 默认对接 C 后端：`http://127.0.0.1:8000/api/v1`。
-- 人脸模块和 YOLO 模块可以先独立跑，后面由 C 后端统一聚合。
+- 人脸模块和 YOLO 模块可以先独立跑，后面由 C 后端统一聚合或转发。
 - 不要提交 `.env`、数据库运行文件、`__pycache__`、上传图片、识别结果图片、模型大文件。
 - MySQL 密码只放本机环境变量或 `.env`，不要写进代码。
 
@@ -83,4 +108,5 @@ http://127.0.0.1:8001/face/register
 - 组员加入与协作：[docs/TEAM_ONBOARDING.md](docs/TEAM_ONBOARDING.md)
 - 本地运行说明：[docs/RUN_LOCAL.md](docs/RUN_LOCAL.md)
 - 阶段联调清单：[docs/INTEGRATION_CHECKLIST.md](docs/INTEGRATION_CHECKLIST.md)
+- 合并决策说明：[docs/MODULE_MERGE_NOTES.md](docs/MODULE_MERGE_NOTES.md)
 - C 负责人接口文档：[智能家居后端API接口文档_C负责人.md](智能家居后端API接口文档_C负责人.md)

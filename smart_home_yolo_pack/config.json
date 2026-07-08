@@ -1,0 +1,47 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "debug": false
+  },
+  "model": {
+    "path": "weights/best.pt",
+    "fallback_model": "yolov8n.pt",
+    "confidence": 0.35,
+    "imgsz": 640,
+    "device": "cpu"
+  },
+  "camera": {
+    "index": 0,
+    "width": 640,
+    "height": 480,
+    "warmup_frames": 5
+  },
+  "save": {
+    "raw_dir": "images",
+    "result_image_dir": "results/images",
+    "json_dir": "results/json",
+    "txt_dir": "results/txt",
+    "database": "results/detections.db"
+  },
+  "hardware": {
+    "enabled": false,
+    "timeout_seconds": 2,
+    "trigger_rules": [
+      {
+        "name": "检测到灯泡后开灯",
+        "classes": [
+          "light_bulb"
+        ],
+        "min_confidence": 0.4,
+        "method": "POST",
+        "endpoint": "http://127.0.0.1:8000/api/v1/devices/light/control",
+        "payload": {
+          "on": true,
+          "brightness": 80,
+          "source": "yolo"
+        }
+      }
+    ]
+  }
+}

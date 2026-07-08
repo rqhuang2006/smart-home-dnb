@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能家居 YOLO 识别系统</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>智能家居 YOLO 识别系统</h1>
+      <p>图片读取 → YOLO目标检测 → 结果保存 → 页面展示 → 可选硬件联动</p>
+    </div>
+    <div class="status-card">
+      <span class="status-dot"></span>
+      <span id="healthText">服务运行中</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls">
+      <h2>操作区</h2>
+      <button id="cameraBtn" class="primary">摄像头拍照并识别</button>
+
+      <div class="upload-box">
+        <label for="imageInput">上传图片测试：</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <button id="uploadBtn">上传并识别</button>
+      </div>
+
+      <div class="tips">
+        <p><strong>说明：</strong>没有接摄像头时，可以先用上传图片功能测试YOLO识别链路。</p>
+        <p><strong>保存位置：</strong>原图在 <code>images/</code>，结果图在 <code>results/images/</code>，JSON在 <code>results/json/</code>，TXT在 <code>results/txt/</code>。</p>
+      </div>
+
+      <pre id="messageBox" class="message-box">等待操作...</pre>
+    </section>
+
+    <section class="panel result-panel">
+      <h2>最新识别结果</h2>
+      <div class="meta-grid">
+        <div><span>检测时间</span><strong id="detectTime">-</strong></div>
+        <div><span>来源</span><strong id="detectSource">-</strong></div>
+        <div><span>目标数量</span><strong id="objectCount">0</strong></div>
+        <div><span>硬件联动</span><strong id="hardwareStatus">未触发</strong></div>
+      </div>
+
+      <div class="image-wrap">
+        <img id="resultImage" src="" alt="暂无识别结果" />
+      </div>
+
+      <h3>目标列表</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>类别ID</th>
+              <th>类别名</th>
+              <th>置信度</th>
+              <th>检测框 xyxy</th>
+            </tr>
+          </thead>
+          <tbody id="objectTable">
+            <tr><td colspan="4">暂无数据</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="panel-title-row">
+        <h2>识别历史</h2>
+        <button id="refreshHistoryBtn">刷新历史</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>时间</th>
+              <th>来源</th>
+              <th>数量</th>
+              <th>类别</th>
+              <th>结果图</th>
+              <th>JSON</th>
+              <th>TXT</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable">
+            <tr><td colspan="8">暂无历史</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

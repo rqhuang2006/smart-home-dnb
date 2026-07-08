@@ -59,36 +59,53 @@ http://127.0.0.1:8001/face/logs
 
 ## 4. GUI 原型
 
-GUI 分支目前还没有合入 main。想查看时：
-
-```bash
-git switch GUI
-```
-
-然后直接用浏览器打开：
+确保 C 后端正在 `8000` 端口运行，然后直接用浏览器打开：
 
 ```text
 web/smart-home-dnb-dashboard.html
+web/nexus-iot-analytics.html
 ```
 
-查看完回到主分支：
+页面默认调用：
+
+```text
+http://127.0.0.1:8000/api/v1
+```
+
+如果浏览器显示离线/mock 数据，先检查：
+
+- C 后端是否启动。
+- `http://127.0.0.1:8000/api/v1/health` 是否能打开。
+- 浏览器是否拦截本地文件访问；必要时可以在项目根目录启动一个静态服务：
 
 ```bash
-git switch main
+python -m http.server 8080
 ```
 
-## 5. YOLO 分支
+然后访问：
 
-YOLO 分支目前包含运行结果和模型大文件，暂时不建议直接合入 main。查看代码：
+```text
+http://127.0.0.1:8080/web/smart-home-dnb-dashboard.html
+```
+
+## 5. YOLO 识别模块
 
 ```bash
-git switch yolo
+cd smart_home_yolo_pack
+python -m pip install -r requirements.txt
+python app.py
 ```
 
-查看完回到主分支：
+查看：
 
-```bash
-git switch main
+```text
+http://127.0.0.1:5000/
+http://127.0.0.1:5000/health
 ```
 
-后续需要先清理运行产物，再按统一接口格式合并。
+说明：
+
+- 仓库只保留 YOLO 源码、配置、页面和脚本。
+- `weights/best.pt`、上传图片、识别结果、SQLite 结果库不提交到 Git。
+- 如果没有 `weights/best.pt`，程序会尝试使用 `yolov8n.pt`，首次下载可能需要联网。
+- 小组兼容接口是 `POST http://127.0.0.1:5000/api/v1/vision/detect`。

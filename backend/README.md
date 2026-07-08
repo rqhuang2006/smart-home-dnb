@@ -48,8 +48,10 @@ http://<orange-pi-ip>:8000/docs
 | GET | `/api/v1/devices/status` | 查询当前温度、灯光、风扇、门窗状态 |
 | GET | `/api/v1/sensors/history` | 查询传感器历史数据 |
 | POST | `/api/v1/iot/telemetry` | mock 设备数据上报 |
+| POST | `/api/v1/images` | mock 图片记录 |
 | POST | `/api/v1/face/verify` | mock 人脸比对和门禁判断 |
 | POST | `/api/v1/vision/detect` | mock YOLO 目标检测 |
+| GET | `/api/v1/vision/records` | 查询 YOLO 识别记录 |
 | POST | `/api/v1/devices/light/control` | mock 灯光远程控制 |
 | POST | `/api/v1/devices/fan/control` | mock 风扇远程控制 |
 | POST | `/api/v1/devices/door/control` | mock 门禁远程控制 |
@@ -117,6 +119,12 @@ GUI 首页聚合数据：
 curl http://127.0.0.1:8000/api/v1/dashboard/summary
 ```
 
+查询 YOLO 记录：
+
+```bash
+curl http://127.0.0.1:8000/api/v1/vision/records
+```
+
 ## 4. 后续替换真实模块的位置
 
 当前 mock 逻辑全部在 `app/main.py` 中：
@@ -129,19 +137,8 @@ curl http://127.0.0.1:8000/api/v1/dashboard/summary
 | `device_status` / `sensor_history` | D 的数据库表和设备数据 |
 | `control_light()` / `control_fan()` | GUI 按钮、硬件控制程序、香橙派 GPIO |
 
-## 5. GitHub 建议
+## 5. 当前集成状态
 
-建议建 GitHub 项目，尤其是多人协作时。推荐仓库结构：
-
-```text
-smart-home-dnb/
-  backend/
-  frontend/
-  ai/
-    face/
-    yolo/
-  hardware/
-  docs/
-```
-
-当前目录可以先作为本地项目使用。等小组确定仓库名和成员后，再把这份 `backend/` 和接口文档推到 GitHub。
+- GUI 页面已合入 `web/`，默认调用 `http://127.0.0.1:8000/api/v1`。
+- YOLO 源码已合入 `smart_home_yolo_pack/`，模型权重和运行结果不进 Git。
+- 人脸模块仍可独立运行在 `8001`，后续可由 C 后端转发或在演示流程中并行启动。

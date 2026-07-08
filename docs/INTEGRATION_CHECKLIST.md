@@ -11,16 +11,20 @@
 - [x] `GET /api/v1/devices/status`
 - [x] `GET /api/v1/sensors/history`
 - [x] `POST /api/v1/iot/telemetry`
+- [x] `POST /api/v1/images`
 - [x] `POST /api/v1/face/verify`
 - [x] `POST /api/v1/vision/detect`
+- [x] `GET /api/v1/vision/records`
 - [x] `POST /api/v1/devices/light/control`
 - [x] `POST /api/v1/devices/fan/control`
 - [x] `POST /api/v1/devices/door/control`
 - [x] `GET /api/v1/dashboard/summary`
+- [x] 已允许本地 GUI 跨域调用 C 后端。
+- [x] mock 模式下温度超过 30.0°C 自动开启风扇。
 
 ## A 人脸识别
 
-- [ ] 人脸服务默认端口改为 8001，避免和 C 后端 8000 冲突。
+- [x] 人脸服务默认端口改为 8001，避免和 C 后端 8000 冲突。
 - [ ] 准备 2 个授权人员和 1 个未授权人员样例。
 - [ ] 输出字段对齐：`matched`、`person_id`、`name`、`confidence`、`door_allowed`、`reason`。
 - [ ] 明确阈值和失败原因。
@@ -28,25 +32,29 @@
 
 ## B YOLO
 
-- [ ] `/api/v1/vision/detect` 返回格式需要和 C 后端统一：`code/message/data`。
-- [ ] 检测列表字段统一为 `objects`，单项包含 `label`、`confidence`、`bbox`。
-- [ ] 运行结果、上传图片、SQLite 数据库、模型权重不要直接提交到 Git。
+- [x] 已合入 YOLO 源码、配置、页面、启动脚本和 `weights/README.md`。
+- [x] `/api/v1/vision/detect` 返回格式已统一为 `code/message/data`。
+- [x] 检测列表字段统一为 `objects`，单项包含 `label`、`confidence`、`bbox`。
+- [x] 运行结果、上传图片、SQLite 数据库、模型权重已排除在本次合并之外。
 - [ ] 如需保存大模型，使用 GitHub Release、网盘或 Git LFS。
+- [ ] 训练/确认最终三类模型，并把本机模型文件放到 `smart_home_yolo_pack/weights/best.pt`。
 
 ## D 数据库与设备数据
 
 - [x] 已提供干净 MySQL schema：`database/schema_iot_smart_system.sql`。
 - [x] `iot_sim.py` 默认通过 C 后端 API 上报，不再写死数据库密码。
 - [ ] 如果要直写 MySQL，复制 `.env.example` 为 `.env` 并配置 `IOT_DB_*`。
-- [ ] 历史数据查询最终由数据库支持时间范围筛选。
+- [ ] 历史数据查询最终由数据库支持时间范围筛选，目前 C 后端仍是内存 mock。
 
 ## E GUI
 
-- [ ] GUI 默认接口地址：`http://127.0.0.1:8000/api/v1`。
-- [ ] 首页展示 `/api/v1/dashboard/summary`。
-- [ ] 历史页面调用 `/api/v1/sensors/history`。
-- [ ] 远程控制按钮调用灯光、风扇、门禁控制接口。
-- [ ] 展示人脸识别结果和 YOLO 检测结果。
+- [x] GUI 页面已合入 `web/`。
+- [x] GUI 默认接口地址：`http://127.0.0.1:8000/api/v1`。
+- [x] 首页展示 `/api/v1/dashboard/summary`。
+- [x] 历史页面调用 `/api/v1/sensors/history`。
+- [x] 远程控制按钮调用灯光、风扇、门禁控制接口。
+- [x] 展示人脸识别结果和 YOLO 检测结果。
+- [ ] 需要最终用真实后端/YOLO/人脸数据跑一遍统一演示。
 
 ## 硬件/香橙派
 

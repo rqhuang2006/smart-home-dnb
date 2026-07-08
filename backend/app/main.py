@@ -2,17 +2,27 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Literal
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 
 API_PREFIX = "/api/v1"
 CHINA_TZ = timezone(timedelta(hours=8))
+AUTO_FAN_THRESHOLD = 30.0
 
 
 app = FastAPI(
     title="Smart Home Backend API",
     description="Mock backend API for the DnB smart home project.",
     version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -32,6 +42,11 @@ class FaceVerifyRequest(BaseModel):
 class DetectRequest(BaseModel):
     image_id: int | None = None
     image_path: str = "/data/images/camera/mock.jpg"
+
+
+class ImageCreateRequest(BaseModel):
+    image_path: str = "/data/images/camera/mock.jpg"
+    source: Literal["camera", "manual", "upload", "mock"] = "mock"
 
 
 class LightControlRequest(BaseModel):
@@ -100,6 +115,23 @@ authorized_people = {
 
 latest_face_access: dict[str, Any] = {}
 latest_detection: dict[str, Any] = {}
+detection_records: list[dict[str, Any]] = [
+    {
+        "record_id": 1,
+        "image_id": 201,
+        "image_path": "/data/images/camera/sample_20260708_120000.jpg",
+        "objects": [
+            {"label": "person", "confidence": 0.87, "bbox": [120, 80, 260, 360]},
+            {"label": "light_bulb", "confidence": 0.76, "bbox": [300, 100, 380, 190]},
+        ],
+        "trigger_action": {
+            "type": "light_on",
+            "executed": True,
+            "reason": "detected light_bulb",
+        },
+        "created_at": "2026-07-08T12:00:00+08:00",
+    }
+]
 
 
 @app.get(f"{API_PREFIX}/health")
@@ -137,19 +169,21 @@ def get_sensor_history(
     elif type == "window":
         records = [{"record_id": r["record_id"], "window_open": r["window_open"], "created_at": r["created_at"]} for r in records]
 
-    return ok({"start": start, "end": end, "type": type, "records": records})
+    return ok(records)
 
 
 @app.post(f"{API_PREFIX}/iot/telemetry")
 def create_telemetry(payload: TelemetryRequest) -> dict[str, Any]:
     record_id = sensor_history[-1]["record_id"] + 1 if sensor_history else 1
+    fan_on = payload.fan_on or payload.temperature >= AUTO_FAN_THRESHOLD
     record = {
         "record_id": record_id,
         "temperature": payload.temperature,
         "light_brightness": payload.light_brightness,
         "door_open": payload.door_open,
         "window_open": payload.window_open,
-        "fan_on": payload.fan_on,
+        "fan_on": fan_on,
+        "auto_fan_triggered": payload.temperature >= AUTO_FAN_THRESHOLD,
         "created_at": now_iso(),
     }
     sensor_history.append(record)
@@ -160,11 +194,23 @@ def create_telemetry(payload: TelemetryRequest) -> dict[str, Any]:
             "light_on": payload.light_brightness > 0,
             "door_open": payload.door_open,
             "window_open": payload.window_open,
-            "fan_on": payload.fan_on,
+            "fan_on": fan_on,
             "updated_at": record["created_at"],
         }
     )
     return ok({"record_id": record_id, "saved": True, "record": record})
+
+
+@app.post(f"{API_PREFIX}/images")
+def create_image_record(payload: ImageCreateRequest) -> dict[str, Any]:
+    return ok(
+        {
+            "image_id": len(detection_records) + 200,
+            "image_path": payload.image_path,
+            "source": payload.source,
+            "created_at": now_iso(),
+        }
+    )
 
 
 @app.post(f"{API_PREFIX}/face/verify")
@@ -210,7 +256,7 @@ def detect_objects(payload: DetectRequest) -> dict[str, Any]:
     device_status["updated_at"] = now_iso()
 
     detection_result = {
-        "record_id": 101,
+        "record_id": detection_records[-1]["record_id"] + 1 if detection_records else 1,
         "image_id": payload.image_id,
         "image_path": payload.image_path,
         "objects": objects,
@@ -221,9 +267,15 @@ def detect_objects(payload: DetectRequest) -> dict[str, Any]:
         },
         "created_at": now_iso(),
     }
+    detection_records.append(detection_result)
     latest_detection.clear()
     latest_detection.update(detection_result)
     return ok(detection_result)
+
+
+@app.get(f"{API_PREFIX}/vision/records")
+def get_vision_records(start: str | None = None, end: str | None = None) -> dict[str, Any]:
+    return ok(detection_records)
 
 
 @app.post(f"{API_PREFIX}/devices/light/control")
