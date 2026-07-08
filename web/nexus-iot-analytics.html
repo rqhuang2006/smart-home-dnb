@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus IoT Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui']
+          },
+          colors: {
+            nexus: {
+              ink: '#07111f',
+              panel: 'rgba(12, 24, 42, .72)',
+              line: 'rgba(148, 163, 184, .18)',
+              cyan: '#29d3ff',
+              green: '#55f0a3',
+              orange: '#ffb25b'
+            }
+          },
+          boxShadow: {
+            glow: '0 0 42px rgba(41, 211, 255, .16)',
+            glass: '0 18px 60px rgba(0, 0, 0, .34)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 8%, rgba(41, 211, 255, .18), transparent 32%),
+        radial-gradient(circle at 85% 0%, rgba(85, 240, 163, .12), transparent 30%),
+        linear-gradient(135deg, #07111f 0%, #0b1526 44%, #111827 100%);
+      color: #e5edf7;
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .26;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, .08) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .8), transparent 78%);
+    }
+    .glass {
+      background: linear-gradient(145deg, rgba(15, 23, 42, .78), rgba(15, 23, 42, .48));
+      border: 1px solid rgba(148, 163, 184, .18);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .34);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+    .subtle-glass {
+      background: rgba(15, 23, 42, .48);
+      border: 1px solid rgba(148, 163, 184, .14);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 18px -72px auto;
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      background: var(--accent);
+      opacity: .12;
+      filter: blur(18px);
+    }
+    .metric-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(41, 211, 255, .36);
+      background: linear-gradient(145deg, rgba(15, 23, 42, .88), rgba(15, 23, 42, .58));
+    }
+    .filter-btn {
+      transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .filter-btn:hover { transform: translateY(-1px); }
+    .filter-btn.active {
+      color: #07111f;
+      background: linear-gradient(135deg, #29d3ff, #55f0a3);
+      border-color: transparent;
+      box-shadow: 0 10px 28px rgba(41, 211, 255, .24);
+    }
+    .chart-box {
+      min-height: 300px;
+      transition: opacity .28s ease, transform .28s ease;
+    }
+    .chart-box.is-refreshing {
+      opacity: .45;
+      transform: scale(.985);
+    }
+    .switch {
+      width: 54px;
+      height: 30px;
+      border-radius: 999px;
+      padding: 3px;
+      background: rgba(148, 163, 184, .22);
+      border: 1px solid rgba(148, 163, 184, .18);
+      transition: background .25s ease, border-color .25s ease;
+    }
+    .switch span {
+      display: block;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+    }
+    .switch.on {
+      background: rgba(85, 240, 163, .2);
+      border-color: rgba(85, 240, 163, .52);
+    }
+    .switch.on span {
+      transform: translateX(24px);
+      background: #55f0a3;
+      box-shadow: 0 0 18px rgba(85, 240, 163, .72);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #55f0a3;
+      box-shadow: 0 0 14px rgba(85, 240, 163, .85);
+    }
+    .log-row {
+      transition: background .18s ease, transform .18s ease;
+    }
+    .log-row:hover {
+      background: rgba(41, 211, 255, .08);
+      transform: translateX(2px);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (max-width: 768px) {
+      .chart-box { min-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 sm:px-6 lg:px-8">
+    <header class="glass sticky top-3 z-30 rounded-2xl px-4 py-3">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-3">
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-300/25">
+            <i data-lucide="orbit" class="h-6 w-6"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold tracking-normal text-white sm:text-xl">Nexus IoT Analytics</h1>
+            <p class="text-xs font-medium text-slate-400">Smart Home Intelligence Console</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="subtle-glass flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-200">
+            <i data-lucide="clock-3" class="h-4 w-4 text-cyan-300"></i>
+            <span id="currentTime" class="tabular-nums">--:--:--</span>
+          </div>
+          <div class="subtle-glass flex items-center gap-2 rounded-xl px-3 py-2 text-sm">
+            <span class="status-dot"></span>
+            <span class="font-semibold text-emerald-300">System Online</span>
+          </div>
+          <button class="subtle-glass flex items-center gap-2 rounded-xl px-2.5 py-2 transition hover:border-cyan-300/40 hover:bg-cyan-300/10" aria-label="Open profile">
+            <img class="h-8 w-8 rounded-lg object-cover ring-1 ring-white/20" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80" alt="User avatar">
+            <span class="hidden text-sm font-semibold text-white sm:block">Alex</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <article class="metric-card glass rounded-2xl p-5" style="--accent: #29d3ff;">
+        <div class="relative z-10 flex items-start justify-between">
+          <div>
+            <p class="text-sm font-semibold text-slate-400">室内温度</p>
+            <div class="mt-3 flex items-end gap-2">
+              <span class="text-4xl font-extrabold text-white">24.5</span>
+              <span class="pb-1 text-lg font-semibold text-cyan-300">°C</span>
+            </div>
+            <p class="mt-2 text-sm text-emerald-300">较上小时 +0.8°C</p>
+          </div>
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-300/12 text-cyan-300">
+            <i data-lucide="thermometer-sun" class="h-6 w-6"></i>
+          </div>
+        </div>
+        <div class="relative z-10 mt-5 h-16">
+          <canvas id="tempMiniChart"></canvas>
+        </div>
+      </article>
+
+      <article class="metric-card glass rounded-2xl p-5" style="--accent: #55f0a3;">
+        <div class="relative z-10 flex items-start justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold text-slate-400">照明系统</p>
+            <div class="mt-3 flex items-end gap-2">
+              <span id="lightCount" class="text-4xl font-extrabold text-white">3/8</span>
+              <span class="pb-1 text-lg font-semibold text-emerald-300">盏</span>
+            </div>
+            <p id="lightHint" class="mt-2 text-sm text-slate-300">客厅、厨房、走廊已开启</p>
+          </div>
+          <button id="lightToggle" class="switch on shrink-0" aria-label="Toggle lighting">
+            <span></span>
+          </button>
+        </div>
+        <div class="relative z-10 mt-5 grid grid-cols-8 gap-2">
+          <span class="h-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(85,240,163,.75)]"></span>
+          <span class="h-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(85,240,163,.75)]"></span>
+          <span class="h-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(85,240,163,.75)]"></span>
+          <span class="h-2 rounded-full bg-slate-600"></span>
+          <span class="h-2 rounded-full bg-slate-600"></span>
+          <span class="h-2 rounded-full bg-slate-600"></span>
+          <span class="h-2 rounded-full bg-slate-600"></span>
+          <span class="h-2 rounded-full bg-slate-600"></span>
+        </div>
+      </article>
+
+      <article class="metric-card glass rounded-2xl p-5" style="--accent: #ffb25b;">
+        <div class="relative z-10 flex items-start justify-between">
+          <div>
+            <p class="text-sm font-semibold text-slate-400">门窗状态</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-3xl font-extrabold text-emerald-300">安全</span>
+              <i data-lucide="shield-check" class="h-6 w-6 text-emerald-300"></i>
+            </div>
+            <p class="mt-2 text-sm text-slate-300">1 个窗户通风中，主入口已锁定</p>
+          </div>
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-orange-300/12 text-orange-300">
+            <i data-lucide="door-closed" class="h-6 w-6"></i>
+          </div>
+        </div>
+        <div class="relative z-10 mt-5 grid gap-2 text-sm">
+          <div class="flex items-center justify-between rounded-xl bg-white/[.04] px-3 py-2">
+            <span class="text-slate-300">客房窗户</span>
+            <span class="font-semibold text-orange-300">开启</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl bg-white/[.04] px-3 py-2">
+            <span class="text-slate-300">大门</span>
+            <span class="font-semibold text-emerald-300">锁定</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="glass rounded-2xl p-4 sm:p-5">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">数据统计与历史分析</h2>
+          <p class="mt-1 text-sm text-slate-400">环境、能耗与安防事件的实时洞察</p>
+        </div>
+        <div class="flex gap-2 overflow-x-auto rounded-2xl bg-slate-950/30 p-1 no-scrollbar">
+          <button class="filter-btn active whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300" data-range="1h">过去1小时</button>
+          <button class="filter-btn whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300" data-range="24h">过去24小时</button>
+          <button class="filter-btn whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300" data-range="7d">过去7天</button>
+          <button class="filter-btn whitespace-nowrap rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300" data-range="custom">自定义区间</button>
+        </div>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <div class="subtle-glass rounded-2xl p-4 xl:col-span-3">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-white">温度与环境光照趋势</h3>
+              <p class="text-xs text-slate-400">Temperature / Ambient Lux</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+              <span class="h-2.5 w-2.5 rounded-full bg-cyan-300"></span> 温度
+              <span class="ml-2 h-2.5 w-2.5 rounded-full bg-emerald-300"></span> 光照
+            </div>
+          </div>
+          <div class="chart-box">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="subtle-glass rounded-2xl p-4 xl:col-span-2">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-white">灯光开启时长</h3>
+              <p class="text-xs text-slate-400">Lighting Runtime Distribution</p>
+            </div>
+            <i data-lucide="bar-chart-3" class="h-5 w-5 text-orange-300"></i>
+          </div>
+          <div class="chart-box">
+            <canvas id="usageChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass rounded-2xl p-4 sm:p-5">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">历史日志</h2>
+          <p class="mt-1 text-sm text-slate-400">最近设备状态变更与触发记录</p>
+        </div>
+        <div class="subtle-glass flex items-center gap-2 rounded-xl px-3 py-2">
+          <i data-lucide="search" class="h-4 w-4 text-slate-400"></i>
+          <input id="logSearch" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500 sm:w-72" type="search" placeholder="搜索设备或事件" />
+        </div>
+      </div>
+
+      <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="px-4 py-3 font-bold">时间戳</th>
+                <th class="px-4 py-3 font-bold">设备</th>
+                <th class="px-4 py-3 font-bold">事件</th>
+                <th class="px-4 py-3 font-bold">状态</th>
+              </tr>
+            </thead>
+            <tbody id="logTable" class="divide-y divide-white/10"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <span id="logCount">显示 0 条记录</span>
+        <div class="flex items-center gap-2">
+          <button class="rounded-xl border border-white/10 px-3 py-2 font-semibold text-slate-300 transition hover:border-cyan-300/40 hover:bg-cyan-300/10">上一页</button>
+          <span class="rounded-xl bg-cyan-300 px-3 py-2 font-extrabold text-slate-950">1</span>
+          <button class="rounded-xl border border-white/10 px-3 py-2 font-semibold text-slate-300 transition hover:border-cyan-300/40 hover:bg-cyan-300/10">下一页</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const chartTextColor = '#94a3b8';
+    const gridColor = 'rgba(148, 163, 184, .14)';
+
+    const datasets = {
+      '1h': {
+        labels: ['12:00', '12:10', '12:20', '12:30', '12:40', '12:50', '13:00'],
+        temp: [23.7, 24.0, 24.2, 24.5, 24.3, 24.6, 24.5],
+        lux: [360, 390, 420, 470, 520, 500, 540],
+        usage: [2.1, 1.2, 1.8, .7, .5]
+      },
+      '24h': {
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '现在'],
+        temp: [21.4, 20.9, 22.8, 24.5, 25.2, 23.9, 22.7],
+        lux: [40, 20, 310, 640, 520, 180, 55],
+        usage: [5.8, 2.6, 4.1, 1.4, 1.2]
+      },
+      '7d': {
+        labels: ['周四', '周五', '周六', '周日', '周一', '周二', '今天'],
+        temp: [22.8, 23.4, 24.2, 25.0, 24.7, 23.8, 24.5],
+        lux: [420, 480, 510, 560, 520, 460, 540],
+        usage: [22, 14, 18, 8, 6]
+      },
+      custom: {
+        labels: ['区间1', '区间2', '区间3', '区间4', '区间5', '区间6', '区间7'],
+        temp: [22.1, 23.2, 23.9, 24.1, 24.8, 25.1, 24.4],
+        lux: [180, 260, 420, 580, 610, 430, 300],
+        usage: [9.5, 6.8, 7.2, 3.3, 2.4]
+      }
+    };
+
+    const logs = [
+      { time: '2026-07-08 13:02:18', device: '客厅主灯', event: '亮度调整', status: '70%' },
+      { time: '2026-07-08 12:58:41', device: '客房窗户', event: '窗户开启', status: '通风' },
+      { time: '2026-07-08 12:45:07', device: '大门智能锁', event: '自动上锁', status: '安全' },
+      { time: '2026-07-08 12:21:36', device: '厨房灯带', event: '设备开启', status: '在线' },
+      { time: '2026-07-08 11:54:22', device: '温湿度传感器', event: '温度上升', status: '+0.8°C' },
+      { time: '2026-07-08 11:33:10', device: '走廊人体传感器', event: '检测到移动', status: '触发' },
+      { time: '2026-07-08 10:49:55', device: '书房台灯', event: '设备关闭', status: '待机' }
+    ];
+
+    let trendChart;
+    let usageChart;
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = new Intl.DateTimeFormat('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(now);
+    }
+
+    function makeGradient(ctx, colorA, colorB) {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, colorA);
+      gradient.addColorStop(1, colorB);
+      return gradient;
+    }
+
+    function createCharts() {
+      const miniCtx = document.getElementById('tempMiniChart');
+      new Chart(miniCtx, {
+        type: 'line',
+        data: {
+          labels: ['', '', '', '', '', '', ''],
+          datasets: [{
+            data: [23.6, 23.9, 24.1, 24.0, 24.4, 24.3, 24.5],
+            borderColor: '#29d3ff',
+            backgroundColor: 'rgba(41, 211, 255, .12)',
+            fill: true,
+            tension: .42,
+            pointRadius: 0,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+
+      const trendCtx = document.getElementById('trendChart').getContext('2d');
+      const active = datasets['1h'];
+      trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: active.labels,
+          datasets: [
+            {
+              label: '温度 °C',
+              data: active.temp,
+              borderColor: '#29d3ff',
+              backgroundColor: makeGradient(trendCtx, 'rgba(41, 211, 255, .24)', 'rgba(41, 211, 255, 0)'),
+              fill: true,
+              tension: .42,
+              yAxisID: 'y',
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              borderWidth: 3
+            },
+            {
+              label: '环境光照 lux',
+              data: active.lux,
+              borderColor: '#55f0a3',
+              backgroundColor: 'rgba(85, 240, 163, .08)',
+              fill: false,
+              tension: .38,
+              yAxisID: 'y1',
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              borderWidth: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(2, 6, 23, .92)',
+              borderColor: 'rgba(148, 163, 184, .24)',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#cbd5e1',
+              padding: 12,
+              displayColors: true
+            }
+          },
+          scales: {
+            x: { ticks: { color: chartTextColor }, grid: { color: gridColor } },
+            y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, suggestedMin: 18, suggestedMax: 28 },
+            y1: {
+              position: 'right',
+              ticks: { color: chartTextColor },
+              grid: { drawOnChartArea: false },
+              suggestedMin: 0,
+              suggestedMax: 700
+            }
+          }
+        }
+      });
+
+      const usageCtx = document.getElementById('usageChart').getContext('2d');
+      usageChart = new Chart(usageCtx, {
+        type: 'bar',
+        data: {
+          labels: ['客厅', '厨房', '走廊', '书房', '卧室'],
+          datasets: [{
+            label: '开启时长',
+            data: active.usage,
+            borderRadius: 12,
+            borderSkipped: false,
+            backgroundColor: ['#29d3ff', '#55f0a3', '#ffb25b', '#8b5cf6', '#f472b6']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(2, 6, 23, .92)',
+              borderColor: 'rgba(148, 163, 184, .24)',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#cbd5e1',
+              padding: 12,
+              callbacks: {
+                label: (context) => ` ${context.parsed.y} 小时`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: chartTextColor }, grid: { display: false } },
+            y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function refreshCharts(range) {
+      const chartBoxes = document.querySelectorAll('.chart-box');
+      chartBoxes.forEach((box) => box.classList.add('is-refreshing'));
+      setTimeout(() => {
+        const next = datasets[range];
+        trendChart.data.labels = next.labels;
+        trendChart.data.datasets[0].data = next.temp;
+        trendChart.data.datasets[1].data = next.lux;
+        usageChart.data.datasets[0].data = next.usage;
+        trendChart.update();
+        usageChart.update();
+        chartBoxes.forEach((box) => box.classList.remove('is-refreshing'));
+      }, 260);
+    }
+
+    function renderLogs(filter = '') {
+      const tbody = document.getElementById('logTable');
+      const keyword = filter.trim().toLowerCase();
+      const filtered = logs.filter((item) =>
+        [item.time, item.device, item.event, item.status].join(' ').toLowerCase().includes(keyword)
+      );
+
+      tbody.innerHTML = filtered.map((item) => {
+        const statusClass = item.status.includes('安全') || item.status.includes('在线') || item.status.includes('%')
+          ? 'text-emerald-300 bg-emerald-300/10'
+          : item.status.includes('触发') || item.status.includes('通风')
+            ? 'text-orange-300 bg-orange-300/10'
+            : 'text-slate-300 bg-slate-300/10';
+
+        return `
+          <tr class="log-row">
+            <td class="whitespace-nowrap px-4 py-4 text-slate-300">${item.time}</td>
+            <td class="whitespace-nowrap px-4 py-4 font-semibold text-white">${item.device}</td>
+            <td class="whitespace-nowrap px-4 py-4 text-slate-300">${item.event}</td>
+            <td class="whitespace-nowrap px-4 py-4">
+              <span class="rounded-full px-2.5 py-1 text-xs font-bold ${statusClass}">${item.status}</span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (!filtered.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-4 py-10 text-center text-slate-400">未找到匹配的日志记录</td>
+          </tr>
+        `;
+      }
+      document.getElementById('logCount').textContent = `显示 ${filtered.length} 条记录`;
+    }
+
+    function bindInteractions() {
+      document.querySelectorAll('.filter-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
+          button.classList.add('active');
+          refreshCharts(button.dataset.range);
+        });
+      });
+
+      const lightToggle = document.getElementById('lightToggle');
+      const lightCount = document.getElementById('lightCount');
+      const lightHint = document.getElementById('lightHint');
+      lightToggle.addEventListener('click', () => {
+        const enabled = lightToggle.classList.toggle('on');
+        lightCount.textContent = enabled ? '3/8' : '0/8';
+        lightHint.textContent = enabled ? '客厅、厨房、走廊已开启' : '所有灯光已关闭';
+      });
+
+      document.getElementById('logSearch').addEventListener('input', (event) => {
+        renderLogs(event.target.value);
+      });
+    }
+
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+      updateTime();
+      setInterval(updateTime, 1000);
+      createCharts();
+      renderLogs();
+      bindInteractions();
+    });
+  </script>
+</body>
+</html>
