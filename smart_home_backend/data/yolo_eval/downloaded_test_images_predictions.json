@@ -1,0 +1,195 @@
+{
+  "hit_expected": "10/10",
+  "items": [
+    {
+      "file": "fire_extinguisher_test_01.jpg",
+      "expected": "fire_extinguisher",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "fire_extinguisher",
+          "confidence": 0.9632,
+          "bbox": [
+            336.89,
+            71.47,
+            944.06,
+            1665.96
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fire_extinguisher_test_02.jpg",
+      "expected": "fire_extinguisher",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "fire_extinguisher",
+          "confidence": 0.9652,
+          "bbox": [
+            273.1,
+            109.68,
+            634.69,
+            1084.86
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fire_extinguisher_test_03.jpg",
+      "expected": "fire_extinguisher",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "fire_extinguisher",
+          "confidence": 0.9634,
+          "bbox": [
+            87.51,
+            509.23,
+            1398.82,
+            3017.15
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fire_extinguisher_test_04.jpg",
+      "expected": "fire_extinguisher",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "fire_extinguisher",
+          "confidence": 0.9819,
+          "bbox": [
+            737.42,
+            57.03,
+            1188.93,
+            944.48
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fire_extinguisher_test_05.jpg",
+      "expected": "fire_extinguisher",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "fire_extinguisher",
+          "confidence": 0.7592,
+          "bbox": [
+            266.55,
+            321.33,
+            1035.48,
+            1569.7
+          ]
+        }
+      ]
+    },
+    {
+      "file": "drone_test_01.jpg",
+      "expected": "drone",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "drone",
+          "confidence": 0.889,
+          "bbox": [
+            120.68,
+            239.47,
+            1158.14,
+            684.19
+          ]
+        }
+      ]
+    },
+    {
+      "file": "drone_test_02.jpg",
+      "expected": "drone",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "drone",
+          "confidence": 0.7384,
+          "bbox": [
+            89.48,
+            56.65,
+            606.36,
+            435.49
+          ]
+        }
+      ]
+    },
+    {
+      "file": "drone_test_03.jpg",
+      "expected": "drone",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "drone",
+          "confidence": 0.6639,
+          "bbox": [
+            89.39,
+            194.96,
+            247.45,
+            321.55
+          ]
+        },
+        {
+          "label": "drone",
+          "confidence": 0.5081,
+          "bbox": [
+            17.73,
+            515.09,
+            1257.12,
+            1228.86
+          ]
+        },
+        {
+          "label": "drone",
+          "confidence": 0.3872,
+          "bbox": [
+            108.49,
+            198.29,
+            208.35,
+            321.49
+          ]
+        }
+      ]
+    },
+    {
+      "file": "drone_test_04.jpg",
+      "expected": "drone",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "drone",
+          "confidence": 0.814,
+          "bbox": [
+            198.75,
+            92.88,
+            1174.91,
+            631.57
+          ]
+        }
+      ]
+    },
+    {
+      "file": "drone_test_05.jpg",
+      "expected": "drone",
+      "hit_expected": true,
+      "detections": [
+        {
+          "label": "drone",
+          "confidence": 0.7119,
+          "bbox": [
+            171.51,
+            147.88,
+            858.94,
+            392.72
+          ]
+        }
+      ]
+    }
+  ]
+}
